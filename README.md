@@ -2,7 +2,7 @@
 
 **Ứng dụng quản lý mật khẩu an toàn với mã hóa AES-256, TOTP generator và đồng bộ Firebase**
 
-[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://acc-manager-ntn.pages.dev/)
+[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://accmanager-ntn.pages.dev/)
 [![Firebase](https://img.shields.io/badge/Firebase-Enabled-orange)](https://firebase.google.com/)
 
 ---
@@ -25,7 +25,7 @@
 
 ## 🚀 Demo
 
-**Link:** [https://acc-manager-ntn.pages.dev/](https://acc-manager-ntn.pages.dev/)
+**Link:** [https://acc-manager-ntn.pages.dev/](https://accmanager-ntn.pages.dev/)
 
 ---
 
