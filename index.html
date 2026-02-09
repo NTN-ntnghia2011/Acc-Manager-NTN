@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0B0D1E">
+    <title>Acc Manager NTN - Quản Lý Mật Khẩu An Toàn & 2FA</title>
+    <meta name="description" content="Ứng dụng quản lý mật khẩu với AES-256, TOTP generator, backup codes và đồng bộ Firebase">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="bg-effects"></div>
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-box">
+            <div class="logo">
+                <div class="logo-icon">🔐</div>
+                <div class="logo-text">ACC MANAGER</div>
+                <div class="logo-sub">Quản lý mật khẩu an toàn</div>
+            </div>
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="authEmail" placeholder="your@email.com">
+            </div>
+            <div class="input-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="authPassword" placeholder="••••••••">
+            </div>
+            <button class="btn" onclick="handleLogin()">🔓 Đăng nhập</button>
+            <button class="btn btn-secondary" onclick="handleRegister()">✨ Đăng ký</button>
+        </div>
+    </div>
+    <div id="appScreen" class="app-screen">
+        <div class="container">
+            <header class="header">
+                <h1>🔐 ACC MANAGER</h1>
+                <div class="header-actions">
+                    <button class="btn-icon" onclick="showAddModal()">➕ Thêm</button>
+                    <button class="btn-icon" onclick="showGeneratorModal()">🎲 Tạo MK</button>
+                    <button class="btn-icon" onclick="handleLogout()">🚪 Thoát</button>
+                </div>
+            </header>
+            <div class="stats">
+                <div class="stat-card"><div class="stat-value" id="totalAccounts">0</div><div class="stat-label">Tổng số</div></div>
+                <div class="stat-card"><div class="stat-value" id="totalWith2FA">0</div><div class="stat-label">Có 2FA</div></div>
+                <div class="stat-card"><div class="stat-value" id="totalWithout2FA">0</div><div class="stat-label">Chưa 2FA</div></div>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm..." oninput="filterAccounts()">
+            </div>
+            <div id="accountsList"></div>
+        </div>
+    </div>
+    <div id="accountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Thêm tài khoản</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <input type="hidden" id="editId">
+            <div class="input-group"><label>Dịch vụ</label><input type="text" id="service" placeholder="Google, Facebook..."></div>
+            <div class="input-group"><label>Username</label><input type="text" id="username" placeholder="your@email.com"></div>
+            <div class="input-group"><label>Mật khẩu</label><input type="password" id="password" placeholder="••••••••"></div>
+            <div class="input-group"><label>URL</label><input type="text" id="url" placeholder="https://..."></div>
+            <div class="input-group"><label>Ghi chú</label><textarea id="notes" rows="2"></textarea></div>
+            <div class="input-group">
+                <label>Có 2FA?</label>
+                <select id="has2FA" onchange="toggle2FA()">
+                    <option value="false">Không</option>
+                    <option value="true">Có</option>
+                </select>
+            </div>
+            <div id="twoFAFields" class="hidden">
+                <div class="input-group"><label>Loại 2FA</label>
+                    <select id="twoFAType">
+                        <option value="totp">Authenticator (TOTP)</option>
+                        <option value="sms">SMS</option>
+                        <option value="email">Email</option>
+                    </select>
+                </div>
+                <div class="input-group"><label>Secret Key</label><input type="text" id="secretKey" placeholder="JBSWY3DPEHPK3PXP"></div>
+                <div class="input-group"><label>Backup Codes</label><textarea id="backupCodes" rows="3" placeholder="Mỗi dòng 1 code"></textarea></div>
+                <div class="input-group"><label>Recovery Info</label><input type="text" id="recoveryInfo" placeholder="Email/Phone khôi phục"></div>
+            </div>
+            <button class="btn" onclick="saveAccount()">💾 Lưu</button>
+        </div>
+    </div>
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="viewTitle">Chi tiết</h2>
+                <button class="close-btn" onclick="closeViewModal()">×</button>
+            </div>
+            <div id="viewContent"></div>
+        </div>
+    </div>
+    <div id="generatorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎲 Tạo mật khẩu</h2>
+                <button class="close-btn" onclick="closeGeneratorModal()">×</button>
+            </div>
+            <div class="password-display">
+                <div id="generatedPassword">Loading...</div>
+                <button class="btn-icon" onclick="copyGenerated()">📋</button>
+            </div>
+            <div class="input-group">
+                <label>Độ dài: <span id="lengthValue">16</span></label>
+                <input type="range" id="length" min="8" max="32" value="16" oninput="updateLength();generatePassword()">
+            </div>
+            <label class="checkbox-label"><input type="checkbox" id="upper" checked onchange="generatePassword()"> Chữ hoa</label>
+            <label class="checkbox-label"><input type="checkbox" id="lower" checked onchange="generatePassword()"> Chữ thường</label>
+            <label class="checkbox-label"><input type="checkbox" id="numbers" checked onchange="generatePassword()"> Số</label>
+            <label class="checkbox-label"><input type="checkbox" id="symbols" checked onchange="generatePassword()"> Ký tự đặc biệt</label>
+            <button class="btn" onclick="generatePassword()">🔄 Tạo lại</button>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

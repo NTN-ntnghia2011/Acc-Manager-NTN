@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://acc-manager-ntn.pages.dev/sitemap.xml

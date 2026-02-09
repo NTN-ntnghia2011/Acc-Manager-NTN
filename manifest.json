@@ -1,0 +1,24 @@
+{
+  "name": "Acc Manager NTN",
+  "short_name": "AccManager",
+  "description": "Quản lý mật khẩu an toàn với AES-256 và 2FA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0D1E",
+  "theme_color": "#00F0FF",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230B0D1E' width='192' height='192'/><text x='96' y='140' font-size='120' text-anchor='middle'>🔐</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%230B0D1E' width='512' height='512'/><text x='256' y='380' font-size='320' text-anchor='middle'>🔐</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "screenshots": []
+}
